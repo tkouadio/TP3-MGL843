@@ -56,13 +56,9 @@ jobs:
         run: |
           if [ -f export_metrics.csv ]; then
             echo "Export CSV réussi !"
-            echo "--- Contenu ---"
-            cat export_metrics.csv
-            echo ""
             echo "Nombre de lignes : $(wc -l < export_metrics.csv)"
           else
             echo "ERREUR : export_metrics.csv non trouvé !"
-            find . -name "*.csv" -type f 2>/dev/null
             exit 1
           fi
 
@@ -77,13 +73,15 @@ jobs:
           retention-days: 30
 
       - name: Pousser les résultats sur la branche ci-results
-        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           mkdir -p /tmp/ci-output
           cp model.json /tmp/ci-output/
           cp export_metrics.csv /tmp/ci-output/
+
           git fetch origin ci-results || true
           if git rev-parse --verify origin/ci-results >/dev/null 2>&1; then
             git checkout ci-results
@@ -91,16 +89,20 @@ jobs:
             git checkout --orphan ci-results
             git rm -rf . 2>/dev/null || true
           fi
-          rm -rf generated
+
           mkdir -p generated
-          BRANCH_NAME=$(echo "${{ github.ref_name }}" | tr '/' '-')
-          cp /tmp/ci-output/model.json generated/model-${BRANCH_NAME}.json
-          cp /tmp/ci-output/export_metrics.csv generated/metrics-${BRANCH_NAME}.csv
+
+          BRANCH_NAME=$(echo "${{ github.head_ref || github.ref_name }}" | tr '/' '-')
+
+          cp /tmp/ci-output/model.json "generated/model-${BRANCH_NAME}.json"
+          cp /tmp/ci-output/export_metrics.csv "generated/metrics-${BRANCH_NAME}.csv"
+
           git add generated/
+
           if git diff --cached --quiet; then
             echo "Pas de changement à commiter"
           else
             COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-            git commit -m "ci: mise à jour des résultats depuis ${COMMIT_SHA} [skip ci]"
+            git commit -m "ci: résultats pour ${BRANCH_NAME} (${COMMIT_SHA}) [skip ci]"
             git push origin ci-results
           fi
