@@ -5,58 +5,76 @@ export class NotesService {
   constructor(private readonly repo: INotesRepository) {}
 
   list(): Note[] {
-    return this.repo.getAll().sort((a, b) => a.id - b.id);
+    return this.loadNotes().sort((a, b) => a.id - b.id);
   }
 
   search(keyword: string): Note[] {
-    const notes = this.repo.getAll();
-    return notes.filter(n => n.matches(keyword));
+    return this.loadNotes().filter(note => note.matches(keyword));
   }
 
   getById(id: number): Note | undefined {
-    return this.repo.getAll().find(n => n.id === id);
+    return this.loadNotes().find(note => note.id === id);
   }
 
   create(title: string, content: string, tags: string[]): Note {
-    const notes = this.repo.getAll();
-    const nextId = notes.length > 0 ? Math.max(...notes.map(n => n.id)) + 1 : 1;
+    const notes = this.loadNotes();
+    const nextId = this.computeNextId(notes);
     const note = Note.createNew(nextId, title, content, tags);
     notes.push(note);
-    this.repo.saveAll(notes);
+    this.saveNotes(notes);
     return note;
   }
 
   update(id: number, fields: { title?: string; content?: string }): Note {
-    const notes = this.repo.getAll();
-    const note = notes.find(n => n.id === id);
-    if (!note) throw new Error('NOTE_NOT_FOUND');
+    const notes = this.loadNotes();
+    const note = this.findNoteOrThrow(id, notes);
     note.update(fields);
-    this.repo.saveAll(notes);
+    this.saveNotes(notes);
     return note;
   }
 
   delete(id: number): void {
-    const notes = this.repo.getAll();
-    const filtered = notes.filter(n => n.id !== id);
-    if (filtered.length === notes.length) throw new Error('NOTE_NOT_FOUND');
-    this.repo.saveAll(filtered);
+    const notes = this.loadNotes();
+    const filtered = notes.filter(note => note.id !== id);
+    if (filtered.length === notes.length) {
+      throw new Error('NOTE_NOT_FOUND');
+    }
+    this.saveNotes(filtered);
   }
 
   addTag(id: number, tag: string): Note {
-    const notes = this.repo.getAll();
-    const note = notes.find(n => n.id === id);
-    if (!note) throw new Error('NOTE_NOT_FOUND');
+    const notes = this.loadNotes();
+    const note = this.findNoteOrThrow(id, notes);
     note.addTag(tag);
-    this.repo.saveAll(notes);
+    this.saveNotes(notes);
     return note;
   }
 
   removeTag(id: number, tag: string): Note {
-    const notes = this.repo.getAll();
-    const note = notes.find(n => n.id === id);
-    if (!note) throw new Error('NOTE_NOT_FOUND');
+    const notes = this.loadNotes();
+    const note = this.findNoteOrThrow(id, notes);
     note.removeTag(tag);
-    this.repo.saveAll(notes);
+    this.saveNotes(notes);
     return note;
+  }
+
+  private loadNotes(): Note[] {
+    return this.repo.getAll();
+  }
+
+  private saveNotes(notes: Note[]): void {
+    this.repo.saveAll(notes);
+  }
+
+  private findNoteOrThrow(id: number, notes: Note[]): Note {
+    const note = notes.find(note => note.id === id);
+    if (!note) {
+      throw new Error('NOTE_NOT_FOUND');
+    }
+    return note;
+  }
+
+  private computeNextId(notes: Note[]): number {
+    return notes.length > 0 ? Math.max(...notes.map(note => note.id)) + 1 : 1;
   }
 }
