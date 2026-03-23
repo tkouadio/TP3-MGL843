@@ -1,6 +1,0 @@
-"ClassName","LOC","NOM","FanIn","FanOut","WMC"
-"NotesStoreHelper","27","6","14","14","13"
-"NoteManager","63","10","11","37","24"
-"FileNotesRepository","22","3","9","12","5"
-"Note","89","9","29","34","19"
-"NotesService","63","9","26","41","22"
