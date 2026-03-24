@@ -42,29 +42,36 @@ export class Note implements NoteProps {
   }
 
   update(fields: { title?: string; content?: string }): void {
-    if (typeof fields.title === 'string') this.title = fields.title.trim();
-    if (typeof fields.content === 'string') this.content = fields.content.trim();
-    this.touch();
+    if (typeof fields.title === 'string') {
+      this.title = fields.title.trim();
+    }
+    if (typeof fields.content === 'string') {
+      this.content = fields.content.trim();
+    }
+    this.updatedAt = new Date().toISOString();
   }
 
   addTag(tag: string): void {
-    const t = tag.trim();
-    if (!t) return;
-    const normalized = Note.normalizeTags([t])[0];
+    const normalized = this.normalizeSingleTag(tag);
+    if (!normalized) return;
+
     if (!this.tags.includes(normalized)) {
       this.tags.push(normalized);
       this.tags = Note.normalizeTags(this.tags);
-      this.touch();
+      this.updatedAt = new Date().toISOString();
     }
   }
 
   removeTag(tag: string): void {
-    const t = tag.trim();
-    if (!t) return;
-    const normalized = Note.normalizeTags([t])[0];
+    const normalized = this.normalizeSingleTag(tag);
+    if (!normalized) return;
+
     const before = this.tags.length;
-    this.tags = this.tags.filter(x => x !== normalized);
-    if (this.tags.length !== before) this.touch();
+    this.tags = this.tags.filter((x) => x !== normalized);
+
+    if (this.tags.length !== before) {
+      this.updatedAt = new Date().toISOString();
+    }
   }
 
   matches(keyword: string): boolean {
@@ -73,7 +80,7 @@ export class Note implements NoteProps {
     return (
       this.title.includes(k) ||
       this.content.includes(k) ||
-      this.tags.some(tag => tag.includes(k))
+      this.tags.some((tag) => tag.includes(k))
     );
   }
 
@@ -88,16 +95,20 @@ export class Note implements NoteProps {
     };
   }
 
-  private touch(): void {
-    this.updatedAt = new Date().toISOString();
+  private normalizeSingleTag(tag: string): string | undefined {
+    const trimmed = tag.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+    return Note.normalizeTags([trimmed])[0];
   }
 
   static normalizeTags(tags: string[]): string[] {
-    // Simple normalisation: trim + lower-case + unique + tri.
     const cleaned = tags
-      .map(t => t.trim())
+      .map((t) => t.trim())
       .filter(Boolean)
-      .map(t => t.toLowerCase());
+      .map((t) => t.toLowerCase());
+
     return Array.from(new Set(cleaned)).sort((a, b) => a.localeCompare(b));
   }
 }
