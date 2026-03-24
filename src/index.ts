@@ -61,11 +61,11 @@ export class NoteManager {
   }
 
   addTag(noteId: number, tag: string) {
-    this.tagService.addTag(noteId, tag);
+    this.tagService.addTagToNote(noteId, tag);
   }
 
   removeTag(noteId: number, tag: string) {
-    this.tagService.removeTag(noteId, tag);
+    this.tagService.removeTagFromNote(noteId, tag);
   }
 
   updateNote(noteId: number, title: string, content: string) {

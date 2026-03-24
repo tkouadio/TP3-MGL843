@@ -62,7 +62,7 @@ export function buildRoutes(
     const id = Number(req.params.id);
     const tag = String(req.body.tag ?? '');
 
-    tagService.addTag(id, tag);
+    tagService.addTagToNote(id, tag);
     res.redirect(`/notes/${id}/edit`);
   });
 
@@ -70,7 +70,7 @@ export function buildRoutes(
     const id = Number(req.params.id);
     const tag = String(req.body.tag ?? '');
 
-    tagService.removeTag(id, tag);
+    tagService.removeTagFromNote(id, tag);
     res.redirect(`/notes/${id}/edit`);
   });
 

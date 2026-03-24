@@ -9,8 +9,9 @@ export interface NoteProps {
 
 /**
  * Entité Note (domaine).
- * - Contient des règles simples (ex: normalisation des tags).
- * - La persistance est gérée ailleurs (Repository).
+ * - Contient les données d'une note
+ * - Garde les comportements centraux du domaine
+ * - La persistance est gérée ailleurs (Repository)
  */
 export class Note implements NoteProps {
   id: number;
@@ -51,32 +52,10 @@ export class Note implements NoteProps {
     this.updatedAt = new Date().toISOString();
   }
 
-  addTag(tag: string): void {
-    const normalized = this.normalizeSingleTag(tag);
-    if (!normalized) return;
-
-    if (!this.tags.includes(normalized)) {
-      this.tags.push(normalized);
-      this.tags = Note.normalizeTags(this.tags);
-      this.updatedAt = new Date().toISOString();
-    }
-  }
-
-  removeTag(tag: string): void {
-    const normalized = this.normalizeSingleTag(tag);
-    if (!normalized) return;
-
-    const before = this.tags.length;
-    this.tags = this.tags.filter((x) => x !== normalized);
-
-    if (this.tags.length !== before) {
-      this.updatedAt = new Date().toISOString();
-    }
-  }
-
   matches(keyword: string): boolean {
     const k = keyword.trim();
     if (!k) return false;
+
     return (
       this.title.includes(k) ||
       this.content.includes(k) ||
@@ -93,14 +72,6 @@ export class Note implements NoteProps {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
-  }
-
-  private normalizeSingleTag(tag: string): string | undefined {
-    const trimmed = tag.trim();
-    if (!trimmed) {
-      return undefined;
-    }
-    return Note.normalizeTags([trimmed])[0];
   }
 
   static normalizeTags(tags: string[]): string[] {

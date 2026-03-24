@@ -4,21 +4,46 @@ import { INotesRepository } from '../persistence/NotesRepository';
 export class TagService {
   constructor(private readonly repo: INotesRepository) {}
 
-  addTag(id: number, tag: string): Note {
+  addTagToNote(id: number, tag: string): Note {
     const notes = this.loadNotes();
     const note = this.findNoteOrThrow(id, notes);
 
-    note.addTag(tag);
-    this.saveNotes(notes);
+    const trimmedTag = tag.trim();
+    if (!trimmedTag) {
+      return note;
+    }
+
+    const normalizedTag = Note.normalizeTags([trimmedTag])[0];
+
+    if (!note.tags.includes(normalizedTag)) {
+      note.tags.push(normalizedTag);
+      note.tags = Note.normalizeTags(note.tags);
+      note.updatedAt = new Date().toISOString();
+      this.saveNotes(notes);
+    }
+
     return note;
   }
 
-  removeTag(id: number, tag: string): Note {
+  removeTagFromNote(id: number, tag: string): Note {
     const notes = this.loadNotes();
     const note = this.findNoteOrThrow(id, notes);
 
-    note.removeTag(tag);
-    this.saveNotes(notes);
+    const trimmedTag = tag.trim();
+    if (!trimmedTag) {
+      return note;
+    }
+
+    const normalizedTag = Note.normalizeTags([trimmedTag])[0];
+    const before = note.tags.length;
+
+    note.tags = note.tags.filter((t) => t !== normalizedTag);
+
+    if (note.tags.length !== before) {
+      note.updatedAt = new Date().toISOString();
+      this.saveNotes(notes);
+    }
+
     return note;
   }
 
