@@ -1,7 +1,0 @@
-"ClassName","LOC","NOM","FanIn","FanOut","WMC"
-"TagService","29","3","7","16","8"
-"NoteManager","72","11","12","43","26"
-"NotesService","41","5","17","24","12"
-"FileNotesRepository","22","3","15","12","5"
-"SearchNotes","12","3","9","9","6"
-"Note","89","9","28","34","19"
