@@ -3,6 +3,7 @@ import { FileNotesRepository } from './persistence/NotesRepository';
 import { NotesService } from './services/NotesService';
 import { SearchNotes } from './services/SearchNotes';
 import { TagService } from './services/TagService';
+import { Note } from './domain/Note';
 
 /**
  * Facade CLI (compatibilité TP1).
@@ -31,26 +32,12 @@ export class NoteManager {
 
   listNotes() {
     const notes = this.notesService.list();
-    if (notes.length === 0) {
-      console.log('Aucune note trouvée.');
-      return;
-    }
-
-    notes.forEach((note) => {
-      console.log(`#${note.id} - ${note.title} [${note.tags.join(', ')}]`);
-    });
+    this.printNotes(notes, 'Aucune note trouvée.');
   }
 
   searchNotesByKeyword(keyword: string) {
     const results = this.searchNotes.search(keyword);
-    if (results.length === 0) {
-      console.log('Aucune note trouvée pour ce mot-clé.');
-      return;
-    }
-
-    results.forEach((note) => {
-      console.log(`#${note.id} - ${note.title} [${note.tags.join(', ')}]`);
-    });
+    this.printNotes(results, 'Aucune note trouvée pour ce mot-clé.');
   }
 
   exportNotes(filename: string) {
@@ -79,6 +66,17 @@ export class NoteManager {
   getNoteById(noteId: number) {
     return this.searchNotes.getById(noteId);
   }
+
+  private printNotes(notes: Note[], emptyMessage: string) {
+    if (notes.length === 0) {
+      console.log(emptyMessage);
+      return;
+    }
+
+    notes.forEach((note) => {
+      console.log(`#${note.id} - ${note.title} [${note.tags.join(', ')}]`);
+    });
+  }
 }
 
 function printHelp() {
@@ -97,11 +95,7 @@ function printHelp() {
 `);
 }
 
-function main() {
-  const NOTES_FILE = path.join(__dirname, '../notes.json');
-  const noteManager = new NoteManager(NOTES_FILE);
-  const [, , cmd, ...args] = process.argv;
-
+function handleCommand(noteManager: NoteManager, cmd: string | undefined, args: string[], notesFile: string) {
   switch (cmd) {
     case 'create':
       if (args.length < 3) {
@@ -150,7 +144,7 @@ function main() {
     case 'web': {
       const { createApp } = require('./web/app');
       const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-      const app = createApp({ notesFile: NOTES_FILE });
+      const app = createApp({ notesFile });
       app.listen(port, () => console.log(`Notes web app running on http://localhost:${port}`));
       break;
     }
@@ -159,6 +153,14 @@ function main() {
     default:
       printHelp();
   }
+}
+
+function main() {
+  const NOTES_FILE = path.join(__dirname, '../notes.json');
+  const noteManager = new NoteManager(NOTES_FILE);
+  const [, , cmd, ...args] = process.argv;
+
+  handleCommand(noteManager, cmd, args, NOTES_FILE);
 }
 
 main();
