@@ -1,3 +1,5 @@
+import { TagPolicy } from './TagPolicy';
+
 export interface NoteProps {
   id: number;
   title: string;
@@ -24,7 +26,7 @@ export class Note implements NoteProps {
     this.id = props.id;
     this.title = props.title;
     this.content = props.content;
-    this.tags = Note.normalizeTags(props.tags);
+    this.tags = TagPolicy.normalize(props.tags);
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
@@ -35,7 +37,7 @@ export class Note implements NoteProps {
       id,
       title: title.trim(),
       content: content.trim(),
-      tags: Note.normalizeTags(tags),
+      tags: TagPolicy.normalize(tags),
       createdAt: now,
       updatedAt: now,
     });
@@ -48,23 +50,19 @@ export class Note implements NoteProps {
   }
 
   addTag(tag: string): void {
-    const t = tag.trim();
-    if (!t) return;
-    const normalized = Note.normalizeTags([t])[0];
-    if (!this.tags.includes(normalized)) {
-      this.tags.push(normalized);
-      this.tags = Note.normalizeTags(this.tags);
+    const nextTags = TagPolicy.add(this.tags, tag);
+    if (nextTags !== this.tags) {
+      this.tags = nextTags;
       this.touch();
     }
   }
 
   removeTag(tag: string): void {
-    const t = tag.trim();
-    if (!t) return;
-    const normalized = Note.normalizeTags([t])[0];
-    const before = this.tags.length;
-    this.tags = this.tags.filter(x => x !== normalized);
-    if (this.tags.length !== before) this.touch();
+    const nextTags = TagPolicy.remove(this.tags, tag);
+    if (nextTags.length !== this.tags.length) {
+      this.tags = nextTags;
+      this.touch();
+    }
   }
 
   matches(keyword: string): boolean {
@@ -90,14 +88,5 @@ export class Note implements NoteProps {
 
   private touch(): void {
     this.updatedAt = new Date().toISOString();
-  }
-
-  static normalizeTags(tags: string[]): string[] {
-    // Simple normalisation: trim + lower-case + unique + tri.
-    const cleaned = tags
-      .map(t => t.trim())
-      .filter(Boolean)
-      .map(t => t.toLowerCase());
-    return Array.from(new Set(cleaned)).sort((a, b) => a.localeCompare(b));
   }
 }
