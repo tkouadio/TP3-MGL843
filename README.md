@@ -84,7 +84,7 @@ L’analyse des métriques a permis d’identifier :
 * Simplification du code
 
 
-## 🔧 Améliorations avec IA (Copilot)
+## 🔧 Améliorations avec IA (Codex)
 
 ### Amélioration 1 (IA)
 
