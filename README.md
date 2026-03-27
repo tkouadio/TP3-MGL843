@@ -1,4 +1,3 @@
-````markdown
 # TP3 – Réusinage et amélioration de la qualité logicielle
 
 > **MGL843 – Sujets avancés en conception logicielle**
