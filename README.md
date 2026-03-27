@@ -1,143 +1,186 @@
-# TP2 – Évaluer la qualité d’un projet TypeScript
+# TP3 – Réusinage et amélioration de la qualité logicielle
 
 > **MGL843 – Sujets avancés en conception logicielle**
 >
-> ![CI Status](https://img.shields.io/badge/CI-GitHub_Actions-blue?logo=github-actions) ![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue?logo=typescript) ![Moose](https://img.shields.io/badge/Analysis-Moose-orange)
+> ![CI Status](https://img.shields.io/badge/CI-GitHub_Actions-blue?logo=github-actions)
+> ![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue?logo=typescript)
+> ![Moose](https://img.shields.io/badge/Analysis-Moose-orange)
 
----
 
-## 📌 Description
+## Description
 
-Ce projet est une évolution du **TP1** dans le cadre du cours **MGL843**. L’objectif est d'accroître la complexité du système pour évaluer la **qualité de la conception logicielle** en introduisant une architecture orientée objets, de nouvelles exigences (FURPS) et une interface Web dynamique.
+Ce projet s’inscrit dans la continuité du **TP2** et a pour objectif de réaliser un **réusinage (refactoring)** d’un système existant afin d’en améliorer la qualité logicielle.
 
-L’application est un **gestionnaire de notes** complet permettant :
+L’approche adoptée repose sur deux axes :
 
-- **CRUD complet** : Création, modification et suppression de notes
-- **Organisation** : Gestion de tags dynamiques
-- **Recherche** : Filtrage par titre, contenu ou tag
-- **Interface Web** : Interaction intuitive développée avec le moteur de template **Pug**
+- 🔧 **Réusinage manuel**, basé sur l’analyse des métriques
+- 🤖 **Réusinage assisté par IA**, via Codex (mode agent)
 
----
+👉 Les deux approches sont ensuite **comparées** afin d’évaluer leur impact sur la qualité du système.
 
-## 🧩 Architecture & Design
 
-Le projet suit une séparation stricte des responsabilités pour améliorer la **maintenabilité** et la **testabilité** :
+## Objectifs
+
+- Identifier les problèmes de conception à partir des métriques
+- Proposer des améliorations pertinentes
+- Appliquer le principe de responsabilité unique (SRP)
+- Comparer les approches **humaine vs IA**
+- Évaluer l’impact sur :
+  - La complexité
+  - Le couplage
+  - La cohésion
+
+
+## Architecture du projet
+
+Le projet repose sur une architecture modulaire :
 
 ```text
 src/
 ├── domain/
-│   └── Note.ts                       # Entité métier (note + tags + règles)
+│   └── Note.ts
 ├── persistence/
-│   └── NotesRepository.ts            # FileNotesRepository (persistance JSON)
+│   └── NotesRepository.ts
 ├── services/
-│   └── NotesService.ts               # Logique métier (CRUD, tags, recherche)
+│   ├── NotesService.ts
+│   ├── SearchNotes.ts
+│   └── TagService.ts
 ├── web/
-│   ├── app.ts                        # Application Express
-│   ├── routes.ts                     # Routes HTTP (/notes)
-│   └── views/                        # Templates Pug
-│       ├── layout.pug
-│       ├── index.pug
-│       ├── note_form.pug
-│       └── note_edit.pug
-├── index.ts                          # Façade / compatibilité (NoteManager)
-├── notes.ts                          # Code legacy / utilitaire (TP1)
+│   ├── app.ts
+│   ├── routes.ts
+│   └── views/
+├── index.ts              # Façade CLI (NoteManager)
 tests/
-├── notes.test.ts                     # Tests unitaires (logique métier)
-└── web.e2e.test.ts                   # Tests E2E (frontend + routes HTTP)
 scripts/
-└── copy-views.js                     # Script de build (copie des vues Pug)
 .github/
-└── workflows/
-    └── ci.yml                        # CI: Tests exécutés à chaque push/PR
-```
+````
 
----
 
-## ⚙️ CI/CD & Analyse de Qualité
+## Problèmes identifiés (TP2)
 
-Le projet intègre un pipeline de CI (Intégration Continue) avancé via GitHub Actions qui automatise l'analyse de qualité à chaque push.
+L’analyse des métriques a permis d’identifier :
 
-### Pipeline d'analyse Moose/Pharo
+* 🔴 **God Class** : `NotesService`
+* 🔴 **Complexité élevée** : `NoteManager`
+* 🔴 **Problème de cohésion** : `Note`
 
-1. **Validation** : Exécution des tests Jest
-2. **Modélisation** : Utilisation de `ts2famix` pour générer un modèle `model.json`
-3. **Analyse Statistique** : Un script Smalltalk charge le modèle dans Moose et calcule :
-   - **LOC** : Lignes de code par classe
-   - **NOM** : Nombre de méthodes
-   - **WMC** : Complexité cyclomatique pondérée (somme des paramètres + 1)
-   - **Couplage** : FanIn (dépendances entrantes) et FanOut (dépendances sortantes)
-4. **Reporting** : Export automatique vers `export_metrics.csv`
 
-Exemple de CSV généré :
+## 🔧 Améliorations manuelles
 
-```
-ClassName,LOC,NOM,FanIn,FanOut,WMC
-MaClasse,85,12,3,2,15
-AutreClasse,30,5,1,1,6
-```
+### Amélioration 1 – Refactoring de NotesService
 
-Les fichiers `model.json` et `export_metrics.csv` sont archivés comme artifacts téléchargeables dans l’onglet Actions de GitHub.
+* Application du **SRP**
+* Séparation en :
 
----
+  * `SearchNotes`
+  * `TagService`
+* Réduction de la complexité et du couplage
 
-## 🛠️ Stack Technique
 
-- **Backend** : Node.js, Express, TypeScript
-- **Frontend** : Pug (Templates HTML), CSS
-- **Tests** : Jest, Supertest
-- **Analyse de code** : Moose, Pharo, FamixTypeScript, ts2famix
+### Amélioration 2 – Refactoring de Note
 
----
+* Allègement de l’entité `Note`
+* Meilleure répartition des responsabilités
+* Simplification du code
 
-## ▶️ Installation et Utilisation
 
-### 1. Prérequis
+## 🔧 Améliorations avec IA (Copilot)
 
-- Node.js (v18+)
-- npm
+### Amélioration 1 (IA)
 
-### 2. Installation
+* Séparation en :
+
+  * `NotesQueryService`
+  * `NotesCommandService`
+  * `NotesPersistenceManager`
+* Conservation de `NotesService` comme façade
+
+
+### Amélioration 2 (IA)
+
+* Extraction de la logique des tags vers `TagPolicy`
+* Amélioration de la cohésion de `Note`
+* Approche minimaliste et non intrusive
+
+
+## Analyse des métriques
+
+Les métriques utilisées :
+
+* **LOC** : lignes de code
+* **NOM** : nombre de méthodes
+* **WMC** : complexité
+* **FanIn / FanOut** : couplage
+
+👉 Les résultats montrent que :
+
+* Le réusinage manuel améliore fortement les métriques
+* L’IA propose des solutions plus conservatrices
+
+
+## ⚖️ Comparaison Manuel vs IA
+
+| Critère             | Manuel               | IA                  |
+| ------------------- | -------------------- | ------------------- |
+| Impact architecture | Élevé                | Faible              |
+| Réduction métriques | Importante           | Limitée             |
+| Cohésion            | Amélioration globale | Amélioration locale |
+| Approche            | Structurelle         | Incrémentale        |
+| Risque              | Plus élevé           | Faible              |
+
+
+## Cas particulier : NoteManager
+
+Bien que la classe `NoteManager` présente des métriques élevées, elle agit comme une **façade CLI**.
+
+👉 Elle ne contient pas de logique métier critique.
+
+Le refactoring de cette classe n’a donc pas été priorisé, car il n’apporterait pas d’amélioration significative de la qualité du domaine.
+
+
+## ⚙️ CI/CD & Analyse
+
+Le pipeline CI permet :
+
+1. Exécution des tests
+2. Génération du modèle (`model.json`)
+3. Analyse via Moose
+4. Export des métriques (`.csv`)
+
+
+## Utilisation
 
 ```bash
 npm install
-```
-
-### 3. Lancer l'application
-
-```bash
-# Mode développement (rechargement automatique)
 npm run dev:web
-```
-
-Accès : [http://localhost:3000/notes](http://localhost:3000/notes)
-
-### 4. Exécuter les tests
-
-```bash
 npm test
 ```
 
----
+## 🔧 Refactoring
 
-## 📊 Génération manuelle des métriques
+Les améliorations de ce projet sont documentées via des Pull Requests :
 
-Si vous souhaitez générer le modèle Famix localement pour l'importer dans Moose :
+- Amélioration 1 (Manuel)
+- Amélioration 2 (Manuel)
+- Amélioration 1 (IA)
+- Amélioration 2 (IA)
 
-1. **Générer le JSON** :
 
-```bash
-ts2famix -i tsconfig.json -o TP2-MGL843-model.json
-```
+## Conclusion
 
-2. **Importer dans Moose** :
-   - Ouvrez Moose
-   - Importez le fichier `TP2-MGL843-model.json` via le panneau d'importation Famix
-   - Utilisez les scripts du dossier `scripts/` ou `ci/` pour extraire les métriques
+Ce projet montre que :
 
----
+* Le **réusinage manuel** est plus efficace pour améliorer les métriques
+* L’**IA** propose des solutions pertinentes mais plus prudentes
+
+Les deux approches sont **complémentaires**
+
 
 ## ✍️ Auteurs
 
-Équipe 3 : Konan Thierry Kouadio, Ghita Aimarah, Hossein Kargar
+Équipe 3 :
+Konan Thierry Kouadio
+Ghita Aimarah
+Hossein Kargar
 
-Contexte : Cours MGL843 – ÉTS – Hiver 2026
+ÉTS – MGL843 – Hiver 2026
