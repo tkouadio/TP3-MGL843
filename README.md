@@ -6,7 +6,6 @@
 > ![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue?logo=typescript)
 > ![Moose](https://img.shields.io/badge/Analysis-Moose-orange)
 
----
 
 ## Description
 
@@ -19,7 +18,6 @@ L’approche adoptée repose sur deux axes :
 
 👉 Les deux approches sont ensuite **comparées** afin d’évaluer leur impact sur la qualité du système.
 
----
 
 ## Objectifs
 
@@ -32,7 +30,6 @@ L’approche adoptée repose sur deux axes :
   - Le couplage
   - La cohésion
 
----
 
 ## Architecture du projet
 
@@ -58,7 +55,6 @@ scripts/
 .github/
 ````
 
----
 
 ## Problèmes identifiés (TP2)
 
@@ -68,7 +64,6 @@ L’analyse des métriques a permis d’identifier :
 * 🔴 **Complexité élevée** : `NoteManager`
 * 🔴 **Problème de cohésion** : `Note`
 
----
 
 ## 🔧 Améliorations manuelles
 
@@ -81,7 +76,6 @@ L’analyse des métriques a permis d’identifier :
   * `TagService`
 * Réduction de la complexité et du couplage
 
----
 
 ### Amélioration 2 – Refactoring de Note
 
@@ -89,7 +83,6 @@ L’analyse des métriques a permis d’identifier :
 * Meilleure répartition des responsabilités
 * Simplification du code
 
----
 
 ## 🔧 Améliorations avec IA (Copilot)
 
@@ -102,7 +95,6 @@ L’analyse des métriques a permis d’identifier :
   * `NotesPersistenceManager`
 * Conservation de `NotesService` comme façade
 
----
 
 ### Amélioration 2 (IA)
 
@@ -110,7 +102,6 @@ L’analyse des métriques a permis d’identifier :
 * Amélioration de la cohésion de `Note`
 * Approche minimaliste et non intrusive
 
----
 
 ## Analyse des métriques
 
@@ -126,7 +117,6 @@ Les métriques utilisées :
 * Le réusinage manuel améliore fortement les métriques
 * L’IA propose des solutions plus conservatrices
 
----
 
 ## ⚖️ Comparaison Manuel vs IA
 
@@ -138,7 +128,6 @@ Les métriques utilisées :
 | Approche            | Structurelle         | Incrémentale        |
 | Risque              | Plus élevé           | Faible              |
 
----
 
 ## Cas particulier : NoteManager
 
@@ -148,7 +137,6 @@ Bien que la classe `NoteManager` présente des métriques élevées, elle agit c
 
 Le refactoring de cette classe n’a donc pas été priorisé, car il n’apporterait pas d’amélioration significative de la qualité du domaine.
 
----
 
 ## ⚙️ CI/CD & Analyse
 
@@ -159,7 +147,6 @@ Le pipeline CI permet :
 3. Analyse via Moose
 4. Export des métriques (`.csv`)
 
----
 
 ## Utilisation
 
@@ -168,7 +155,6 @@ npm install
 npm run dev:web
 npm test
 ```
----
 
 ## 🔧 Refactoring
 
@@ -179,7 +165,6 @@ Les améliorations de ce projet sont documentées via des Pull Requests :
 - Amélioration 1 (IA)
 - Amélioration 2 (IA)
 
----
 
 ## Conclusion
 
@@ -190,7 +175,6 @@ Ce projet montre que :
 
 Les deux approches sont **complémentaires**
 
----
 
 ## ✍️ Auteurs
 
@@ -200,5 +184,3 @@ Ghita Aimarah
 Hossein Kargar
 
 ÉTS – MGL843 – Hiver 2026
-
-````
